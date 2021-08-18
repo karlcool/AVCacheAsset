@@ -8,40 +8,54 @@
 import UIKit
 import AVKit
 
-class ViewController: UIViewController, AVAssetDownloadDelegate {
+class ViewController: UIViewController {
     //http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8
     //http://upload2.koucaimiao.com/filesystem/60d9459257b6c86f769a445e
     //http://upload1.koucaimiao.com/filesystem/60b483f68fdf293199bb21a5
     //https://seed128.bitchute.com/vBEqxcyTQvca/ucXUjHNSZo9G.mp4
     lazy var url = URL(string: "http://upload1.koucaimiao.com/filesystem/60b483f68fdf293199bb21a5")!
-    
-    lazy var asset = AVCacheAsset(url: url)
-    
-    lazy var playItem = AVPlayerItem(asset: asset)
-    
-    lazy var playLayer = AVPlayerLayer(player: player)
-    
-    lazy var player = AVPlayer(playerItem: playItem)
+
+    lazy var player: AVURLPlayer = {
+        let result = AVURLPlayer(url: url)
+        result.delegate = self
+        return result
+    }()
 
     lazy var preloader = AVPreloader.shared
 
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
+        DLog("缓存路径:\(AVCacheProvider.shared.cachePath(url))")
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
-//        play()
-        
-        AVURLPlayer()
+        play()
     }
 
     func play() {
-        view.layer.addSublayer(playLayer)
-        playLayer.frame = view.bounds
+        view.layer.addSublayer(player.previewLayer)
+        player.previewLayer.frame = view.bounds
         player.play()
+    }
+}
+
+extension ViewController: AVURLPlayerDelegate {
+    func player(_ player: AVURLPlayer, didUpdate itemStatus: AVURLPlayer.ItemStatus) {
+        DLog("视频状态\(itemStatus)")
+    }
+    
+    func player(_ player: AVURLPlayer, didUpdate playerStatus: AVURLPlayer.Status) {
+        DLog("播放状态\(playerStatus)")
+    }
+    
+    func player(_ player: AVURLPlayer, didUpdate playTime: Double, duration: Double) {
+        
+    }
+    
+    func player(_ player: AVURLPlayer, didUpdate bufferRanges: [NSValue]) {
+        
     }
 }
 

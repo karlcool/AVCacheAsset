@@ -17,7 +17,6 @@ class AVCacheAsset: AVURLAsset {
         originUrl = URL
         super.init(url: URL.fakeUrl, options: options)
         resourceLoader.setDelegate(self, queue: .init(label: "AVResourceLoader.workQueue"))
-        DLog("缓存路径:\(AVCacheProvider.shared.cachePath(URL))")
     }
 }
 

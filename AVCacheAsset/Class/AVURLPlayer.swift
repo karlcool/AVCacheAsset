@@ -8,28 +8,143 @@
 import UIKit
 import AVKit
 
+protocol AVURLPlayerDelegate: NSObjectProtocol {
+    func player(_ player: AVURLPlayer, didUpdate itemStatus: AVURLPlayer.ItemStatus)
+    
+    func player(_ player: AVURLPlayer, didUpdate playerStatus: AVURLPlayer.Status)
+    
+    func player(_ player: AVURLPlayer, didUpdate playTime: Double, duration: Double)
+    
+    func player(_ player: AVURLPlayer, didUpdate bufferRanges: [NSValue])
+}
+
 class AVURLPlayer: NSObject {
     private(set) lazy var player: AVPlayer = {
         let result = AVPlayer()
-        result.setObserver(self) { time in
-            
+        result.setObserver(self) { [weak self] time in
+            if let _self = self {
+                _self.delegate?.player(_self, didUpdate: _self.currentTime, duration: _self.duration)
+            }
         }
-        
         return result
     }()
 
+    lazy var previewLayer: AVPlayerLayer = {
+        let result = AVPlayerLayer(player: player)
+        result.videoGravity = .resizeAspect
+        return result
+    }()
+    
+    ///item当前播放时间，秒级
+    var currentTime: Double {
+        let sec = currentItem?.currentTime().seconds ?? 0.0
+        return sec.isNaN ? 0 : sec
+    }
+    
+    ///item总时长，只有在currentItemStatus在readyToPlay之后才有效
+    var duration: Double {
+        let sec = currentItem?.duration.seconds ?? 0.0
+        return sec.isNaN ? 0 : sec
+    }
+    
+    private(set) var currentURL: URL?
+    
+    private(set) var currentAsset: AVAsset?
+    
     private(set) var currentItem: AVPlayerItem?
 
-    private(set) var currentItemStatus: ItemStatus = .none
+    private(set) var currentItemStatus: ItemStatus = .none {
+        didSet {
+            if oldValue != currentItemStatus {
+                delegate?.player(self, didUpdate: currentItemStatus)
+                if currentItemStatus == .readyToPlay {
+                    delegate?.player(self, didUpdate: currentTime, duration: duration)
+                }
+            }
+        }
+    }
     
-    private(set) var status: Status = .none
+    private(set) var status: Status = .none {
+        didSet {
+            if oldValue != status {
+                delegate?.player(self, didUpdate: status)
+            }
+        }
+    }
+    
+    private(set) var needResume = false
+    
+    weak var delegate: AVURLPlayerDelegate?
+    
+    var isPlaying: Bool { status == .playing }
+    
+    var isPaused: Bool { status == .paused || status == .waitingToPlayAtSpecifiedRate }
     
     override init() {
         super.init()
+        setupNotification()
+    }
+    
+    init(url: URL) {
+        super.init()
+        setupNotification()
+        prepare(url: url)
     }
     
     deinit {
+        player.pause()
         player.removeObserver()
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNotification() {
+        NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+    
+    @objc private func willResignActive() {
+        needResume = !isPaused
+        pause()
+    }
+    
+    @objc private func didBecomeActive() {
+        guard needResume else {
+            return
+        }
+        play()
+    }
+}
+
+extension AVURLPlayer {
+    func prepare(url: URL) {
+        pause()
+        currentItem?.removeObserver()
+        currentURL = url
+        if url.isFileURL {//本地视频
+            currentAsset = AVAsset(url: url)
+        } else {//在线视频
+            currentAsset = AVCacheAsset(url: url)
+        }
+        currentItem = AVPlayerItem(asset: currentAsset!)
+        currentItem!.setObserver(self)
+        player.replaceCurrentItem(with: currentItem!)
+        currentItemStatus = .none
+    }
+    
+    func play() {
+        guard currentItem != nil else {
+            return
+        }
+        player.play()
+        if currentURL?.isFileURL ?? false {
+            currentItemStatus = .bufferFull
+        } else {
+            currentItemStatus = .buffering
+        }
+    }
+    
+    func pause() {
+        player.pause()
     }
 }
 
@@ -51,9 +166,9 @@ extension AVURLPlayer {
                     currentItemStatus = .bufferFull
                 }
             } else if keyPath == kAVPlayerItemDuration {//播放进度改变
-                playerItem.currentTime()
+
             } else if keyPath == kAVPlayerItemTimeRanges {//缓冲进度更新
-                playerItem.loadedTimeRanges
+                delegate?.player(self, didUpdate: playerItem.loadedTimeRanges)
             }
         } else if let player = object as? AVPlayer, self.player == player {
             if keyPath == kAVPlayerRate {//播放器速率改变，0可简单理解为暂停，1可简单理解为播放，0.5就是0.5倍数
@@ -68,9 +183,8 @@ extension AVURLPlayer {
 }
 
 extension AVURLPlayer {
-    enum Status {
+    enum Status: Equatable {
         case none
-        case ready
         case paused
         case waitingToPlayAtSpecifiedRate
         case playing
@@ -88,6 +202,23 @@ extension AVURLPlayer {
                 self = .none
             }
         }
+        
+        static func == (lhs: Self, rhs: Self) -> Bool {
+            switch (lhs, rhs) {
+            case (.none, .none):
+                return true
+            case (.paused, .paused):
+                return true
+            case (.waitingToPlayAtSpecifiedRate, .waitingToPlayAtSpecifiedRate):
+                return true
+            case (.playing, .playing):
+                return true
+            case (.failed(_), .failed(_)):
+                return true
+            default:
+                return false
+            }
+        }
     }
     
     enum ItemStatus: Int {
@@ -95,10 +226,10 @@ extension AVURLPlayer {
         case none = -1
         ///未知
         case unknown
-        ///准备完成
-        case readyToPlay
         ///失败
         case failed
+        ///准备完成
+        case readyToPlay
         ///缓冲中
         case buffering
         ///缓冲可播放

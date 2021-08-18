@@ -59,6 +59,9 @@ class AVFileRange {
     
     func add(_ range: FileRange) {
         ranges.append(range)
+        #if DEBUG
+        encode()
+        #endif
     }
     
     func deduct(_ other: FileRange) {
@@ -70,6 +73,9 @@ class AVFileRange {
                 ranges.append(breaked)
             }
         }
+        #if DEBUG
+        encode()
+        #endif
     }
     
     func exclude(_ source: FileRange) {
