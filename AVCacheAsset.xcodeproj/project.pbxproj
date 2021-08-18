@@ -19,6 +19,8 @@
 		2C6561ED26CCE2700002BDFA /* AVPreloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561E526CCE2700002BDFA /* AVPreloader.swift */; };
 		2C6561EE26CCE2700002BDFA /* AVFileRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561E626CCE2700002BDFA /* AVFileRange.swift */; };
 		2C6561EF26CCE2700002BDFA /* AVProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561E726CCE2700002BDFA /* AVProperty.swift */; };
+		2C6561F126CCE4EB0002BDFA /* AVURLPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561F026CCE4EB0002BDFA /* AVURLPlayer.swift */; };
+		2C6561F326CCFC580002BDFA /* AVPlayer+Observer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561F226CCFC580002BDFA /* AVPlayer+Observer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +38,8 @@
 		2C6561E526CCE2700002BDFA /* AVPreloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPreloader.swift; sourceTree = "<group>"; };
 		2C6561E626CCE2700002BDFA /* AVFileRange.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVFileRange.swift; sourceTree = "<group>"; };
 		2C6561E726CCE2700002BDFA /* AVProperty.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVProperty.swift; sourceTree = "<group>"; };
+		2C6561F026CCE4EB0002BDFA /* AVURLPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVURLPlayer.swift; sourceTree = "<group>"; };
+		2C6561F226CCFC580002BDFA /* AVPlayer+Observer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AVPlayer+Observer.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,8 @@
 		2C6561DF26CCE2700002BDFA /* Class */ = {
 			isa = PBXGroup;
 			children = (
+				2C6561F026CCE4EB0002BDFA /* AVURLPlayer.swift */,
+				2C6561F226CCFC580002BDFA /* AVPlayer+Observer.swift */,
 				2C6561E426CCE2700002BDFA /* AVCacheAsset.swift */,
 				2C6561E326CCE2700002BDFA /* AVDataTasker.swift */,
 				2C6561E126CCE2700002BDFA /* AVDataTask.swift */,
@@ -171,6 +177,8 @@
 				2C6561CC26CCE1CD0002BDFA /* AppDelegate.swift in Sources */,
 				2C6561EF26CCE2700002BDFA /* AVProperty.swift in Sources */,
 				2C6561E926CCE2700002BDFA /* AVDataTask.swift in Sources */,
+				2C6561F326CCFC580002BDFA /* AVPlayer+Observer.swift in Sources */,
+				2C6561F126CCE4EB0002BDFA /* AVURLPlayer.swift in Sources */,
 				2C6561EA26CCE2700002BDFA /* AVCacheProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

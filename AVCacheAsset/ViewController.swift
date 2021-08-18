@@ -24,7 +24,7 @@ class ViewController: UIViewController, AVAssetDownloadDelegate {
     lazy var player = AVPlayer(playerItem: playItem)
 
     lazy var preloader = AVPreloader.shared
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -33,9 +33,11 @@ class ViewController: UIViewController, AVAssetDownloadDelegate {
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
-        play()
+//        play()
+        
+        AVURLPlayer()
     }
- 
+
     func play() {
         view.layer.addSublayer(playLayer)
         playLayer.frame = view.bounds
