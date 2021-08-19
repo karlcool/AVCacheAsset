@@ -9,7 +9,7 @@ import UIKit
 import CommonCrypto
 
 public class AVCacheProvider: NSObject {
-    static let shared = AVCacheProvider()
+    public static let shared = AVCacheProvider()
     
     private lazy var cacheFolder: String = {
         let path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! + "/AVCache"
@@ -27,7 +27,7 @@ public class AVCacheProvider: NSObject {
         super.init()
     }
     
-    func cache(url: URL) -> AVCache {
+    public func cache(url: URL) -> AVCache {
         locker.lock()
         defer {
             locker.unlock()
@@ -38,7 +38,7 @@ public class AVCacheProvider: NSObject {
         return cacheDic[url]!
     }
     
-    func release(url: URL? = nil) {
+    public func release(url: URL? = nil) {
         locker.lock()
         defer {
             locker.unlock()

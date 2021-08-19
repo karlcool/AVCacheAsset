@@ -64,34 +64,34 @@ open class AVURLPlayer: NSObject {
     
     private(set) var needResume = false
     ///播放次数，-1为无限循环
-    var repeatCount = 0
+    public var repeatCount = 0
     ///当前循环次数
     private(set) var currentRepeatCount = 0
     
-    weak var delegate: AVURLPlayerDelegate?
+    public weak var delegate: AVURLPlayerDelegate?
     
-    var isPlaying: Bool { status == .playing }
+    public var isPlaying: Bool { status == .playing }
     
-    var isPaused: Bool { status == .paused || status == .waitingToPlayAtSpecifiedRate }
+    public var isPaused: Bool { status == .paused || status == .waitingToPlayAtSpecifiedRate }
     
     ///item当前播放时间，秒级
-    var currentTime: Double {
+    public var currentTime: Double {
         let sec = currentItem?.currentTime().seconds ?? 0.0
         return sec.isNaN ? 0 : sec
     }
     
     ///item总时长，只有在currentItemStatus在readyToPlay之后才有效
-    var duration: Double {
+    public var duration: Double {
         let sec = currentItem?.duration.seconds ?? 0.0
         return sec.isNaN ? 0 : sec
     }
     
-    override init() {
+    public override init() {
         super.init()
         setupNotification()
     }
     
-    init(url: URL) {
+    public init(url: URL) {
         super.init()
         setupNotification()
         prepare(url: url)

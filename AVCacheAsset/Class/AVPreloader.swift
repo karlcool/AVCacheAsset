@@ -9,7 +9,7 @@ import Foundation
 
 ///预加载器
 open class AVPreloader: NSObject {
-    static let shared = AVPreloader()
+    public static let shared = AVPreloader()
     
     private let locker = NSLock()
     

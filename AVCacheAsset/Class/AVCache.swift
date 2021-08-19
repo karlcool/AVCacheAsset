@@ -29,13 +29,13 @@ open class AVCache {
     
     private lazy var locker = NSLock()
     
-    let url: URL
+    public let url: URL
     
-    let cachePath: String
+    public let cachePath: String
     
-    let cacheName: String
+    public let cacheName: String
     
-    init(url: URL, cachePath: String) {
+    public init(url: URL, cachePath: String) {
         self.url = url
         self.cachePath = cachePath
         cacheName = (cachePath as NSString).lastPathComponent
@@ -46,7 +46,7 @@ open class AVCache {
         writeHandle?.closeFile()
     }
     
-    func contentInfo() -> ContentInfo? {
+    public func contentInfo() -> ContentInfo? {
         let length = contentLength.value
         guard length != 0 else {
             return nil
@@ -54,12 +54,12 @@ open class AVCache {
         return (contentType.value, length)
     }
     
-    func cache(info: ContentInfo) {
+    public func cache(info: ContentInfo) {
         contentType.value = info.type
         contentLength.value = info.length
     }
     
-    func data(offset: Int64, length: Int64) -> Data {
+    public func data(offset: Int64, length: Int64) -> Data {
         locker.lock()
         defer {
             locker.unlock()
@@ -80,7 +80,7 @@ open class AVCache {
         return result
     }
 
-    func cache(data: Data, offset: Int64) {
+    public func cache(data: Data, offset: Int64) {
         writeQueue.async {
             self._cache(data: data, offset: offset)
         }

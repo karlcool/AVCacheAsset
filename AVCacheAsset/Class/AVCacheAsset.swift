@@ -9,11 +9,11 @@ import Foundation
 import AVKit
 
 open class AVCacheAsset: AVURLAsset {
-    private(set) lazy var tasker = AVDataTasker(url: originUrl)
+    public private(set) lazy var tasker = AVDataTasker(url: originUrl)
 
-    let originUrl: URL
+    public let originUrl: URL
 
-    override init(url URL: URL, options: [String : Any]? = nil) {
+    public override init(url URL: URL, options: [String : Any]? = nil) {
         originUrl = URL
         super.init(url: URL.fakeUrl, options: options)
         resourceLoader.setDelegate(self, queue: .init(label: "AVResourceLoader.workQueue"))

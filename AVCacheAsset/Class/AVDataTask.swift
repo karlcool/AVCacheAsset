@@ -12,15 +12,15 @@ public typealias ContentInfo = (type: String, length: Int64)
 
 open class AVDataTask: NSObject {
 
-    private(set) lazy var config: URLSessionConfiguration = {
+    public private(set) lazy var config: URLSessionConfiguration = {
         let result = URLSessionConfiguration.ephemeral//.default会导致内存泄漏而ephemeral不会，很奇怪
         result.networkServiceType = .video
         return result
     }()
     
-    private(set) lazy var session = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
+    public private(set) lazy var session = URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue())
     
-    private(set) lazy var request: URLRequest = {
+    public private(set) lazy var request: URLRequest = {
         let end = requestedEnd != nil ? "\(requestedEnd!)" : ""
         var result = URLRequest(url: url, cachePolicy: .reloadIgnoringCacheData, timeoutInterval: 30)
         result.setValue("bytes=\(requestedOffset)-\(end)", forHTTPHeaderField: "Range")
@@ -28,11 +28,11 @@ open class AVDataTask: NSObject {
         return result
     }()
     
-    private(set) lazy var task = session.dataTask(with: request)
+    public private(set) lazy var task = session.dataTask(with: request)
 
-    let requestedOffset: Int64
+    public let requestedOffset: Int64
     
-    let requestedEnd: Int64?
+    public let requestedEnd: Int64?
 
     private var infoCallback: ((ContentInfo) -> Void)?
     
@@ -40,11 +40,11 @@ open class AVDataTask: NSObject {
     
     private var finishedCallback: ((Error?) -> Void)?
 
-    let id = UUID().uuidString
+    public let id = UUID().uuidString
     
-    let url: URL
+    public let url: URL
 
-    init(url u: URL, offset: Int64? = nil, end: Int64? = nil) {
+    public init(url u: URL, offset: Int64? = nil, end: Int64? = nil) {
         url = u
         requestedOffset = offset ?? 0
         requestedEnd = end

@@ -13,13 +13,13 @@ public class AVPlayerSeeker {
     
     private var targetTime = CMTime.zero
     
-    weak var player: AVPlayer?
+    public weak var player: AVPlayer?
     
-    init(player: AVPlayer) {
+    public init(player: AVPlayer) {
         self.player = player
     }
 
-    func seek(to time: CMTime, toleranceBefore: CMTime, toleranceAfter: CMTime, completionHandler: @escaping (Bool) -> Void) {
+    public func seek(to time: CMTime, toleranceBefore: CMTime, toleranceAfter: CMTime, completionHandler: @escaping (Bool) -> Void) {
         targetTime = time
         guard !isSeeking else {
             return

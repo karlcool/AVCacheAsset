@@ -11,11 +11,11 @@ open class AVFileRange {
 
     private lazy var cache = AVProperty(key: "AVProperty.\(id).cache", default: [String]())
     
-    lazy var ranges = decode()
+    public lazy var ranges = decode()
     
-    let id: String
+    public let id: String
     
-    init(id: String) {
+    public init(id: String) {
         self.id = id
         NotificationCenter.default.addObserver(self, selector: #selector(encode), name: UIApplication.willTerminateNotification, object: nil)
     }
@@ -57,14 +57,14 @@ open class AVFileRange {
         return result
     }
     
-    func add(_ range: FileRange) {
+    public func add(_ range: FileRange) {
         ranges.append(range)
         #if DEBUG
         encode()
         #endif
     }
     
-    func deduct(_ other: FileRange) {
+    public func deduct(_ other: FileRange) {
         for uncache in ranges {
             if uncache.isInvalid {
                 continue
@@ -78,7 +78,7 @@ open class AVFileRange {
         #endif
     }
     
-    func exclude(_ source: FileRange) {
+    public func exclude(_ source: FileRange) {
         for r in ranges {
             source.deduct(r)
         }
@@ -92,7 +92,7 @@ open class FileRange: NSObject, Codable {
     ///区间已无效
     private(set) var isInvalid = false
     
-    init?(start: Int64, end: Int64) {
+    public init?(start: Int64, end: Int64) {
         guard start >= 0, start < end else {
             return nil
         }
@@ -101,7 +101,7 @@ open class FileRange: NSObject, Codable {
     }
     
     ///区间不相交部分
-    func notIntersect(_ other: FileRange) -> [(Int64, Int64)] {
+    public func notIntersect(_ other: FileRange) -> [(Int64, Int64)] {
         if start < other.start {
             if end < other.end {
                 if end > other.start {//右相交
@@ -126,7 +126,7 @@ open class FileRange: NSObject, Codable {
     }
     
     ///区间相交部分
-    func intersect(_ other: FileRange) -> (Int64, Int64)? {
+    public func intersect(_ other: FileRange) -> (Int64, Int64)? {
         if start < other.start {
             if end < other.end {//右相交
                 if end > other.start {//右相交

@@ -14,9 +14,9 @@ open class AVDataTasker: NSObject {
     
     private var taskQueue = [String: (AVDataTask, AVAssetResourceLoadingRequest?)]()
     
-    let cache: AVCache
+    public let cache: AVCache
     
-    init(url: URL) {
+    public init(url: URL) {
         cache = AVCacheProvider.shared.cache(url: url)
         super.init()
     }

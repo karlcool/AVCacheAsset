@@ -1,7 +1,7 @@
 
 Pod::Spec.new do |s|
   s.name         = "AVCacheAsset"
-  s.version      = "1.0.1"
+  s.version      = "1.0.2"
   s.summary      = "AVCacheAsset"
   s.description  = "AVCacheAsset"
   s.homepage     = "https://github.com/karlcool/AVCacheAsset.git"
