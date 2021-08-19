@@ -9,17 +9,11 @@ import UIKit
 import AVKit
 
 class ViewController: UIViewController {
-    //http://cctvalih5ca.v.myalicdn.com/live/cctv1_2/index.m3u8
-    //http://upload2.koucaimiao.com/filesystem/60d9459257b6c86f769a445e
-    //http://upload1.koucaimiao.com/filesystem/60b483f68fdf293199bb21a5
-    //https://seed128.bitchute.com/vBEqxcyTQvca/ucXUjHNSZo9G.mp4
-    lazy var url = URL(string: "http://upload1.koucaimiao.com/filesystem/60b483f68fdf293199bb21a5")!
+    lazy var url = URL(string: "https://stream7.iqilu.com/10339/article/202002/18/2fca1c77730e54c7b500573c2437003f.mp4")!
 
-//    lazy var url = URL(fileURLWithPath: "/Users/karlcool/Downloads/test.mov")
-    
     lazy var preloader = AVPreloader.shared
 
-    lazy var player: AVURLPlayer! = {
+    lazy var player: AVURLPlayer = {
         let result = AVURLPlayer(url: url)
         result.delegate = self
         result.repeatCount = -1
@@ -47,24 +41,20 @@ class ViewController: UIViewController {
         return temp
     }()
     
+    lazy var indicator: UIActivityIndicatorView = {
+        let temp = UIActivityIndicatorView(style: .whiteLarge)
+        temp.isUserInteractionEnabled = false
+        return temp
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
-        view.layer.addSublayer(player.previewLayer)
+        view.backgroundColor = .black
         configSubviews()
-        player.previewLayer.frame = view.bounds
         DLog("缓存路径:\(AVCacheProvider.shared.cachePath(url))")
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 
         play()
-//        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) {
-//            self.remove()
-//        }
-    }
-    
-    func remove() {
-        player.previewLayer.removeFromSuperlayer()
-        player = nil
     }
 
     @objc func play() {
@@ -89,7 +79,9 @@ extension ViewController {
     }
     
     func setupSubviews() {
+        view.layer.addSublayer(player.layer)
         view.addSubview(controlView)
+        view.addSubview(indicator)
         controlView.addSubview(playBtn)
         controlView.addSubview(slider)
     }
@@ -99,6 +91,8 @@ extension ViewController {
         controlView.frame = .init(x: 0, y: view.bounds.height - h - 50, width: view.bounds.width, height: h)
         playBtn.frame = .init(x: 0, y: 0, width: h, height: h)
         slider.frame = .init(x: playBtn.bounds.width, y: 0, width: controlView.bounds.width - playBtn.bounds.width, height: h)
+        indicator.frame = view.bounds
+        player.layer.frame = view.bounds
     }
 }
 
@@ -114,6 +108,11 @@ extension ViewController: AVURLPlayerDelegate {
     func player(_ player: AVURLPlayer, didUpdate playerStatus: AVURLPlayer.Status) {
         DLog("播放状态\(playerStatus)")
         playBtn.setTitle(playerStatus == .paused ? "播放" : "暂停", for: .normal)
+        if playerStatus == .waitingToPlayAtSpecifiedRate || playerStatus == .seeking {
+            indicator.startAnimating()
+        } else {
+            indicator.stopAnimating()
+        }
     }
     
     func player(_ player: AVURLPlayer, didUpdate playTime: Double, duration: Double) {

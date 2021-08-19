@@ -19,7 +19,13 @@ protocol AVURLPlayerDelegate: NSObjectProtocol {
 }
 
 class AVURLPlayer: NSObject {
-    private(set) lazy var player: AVPlayer = {
+    private(set) lazy var layer: AVPlayerLayer = {
+        let result = AVPlayerLayer(player: core)
+        result.videoGravity = .resizeAspect
+        return result
+    }()
+    
+    private(set) lazy var core: AVPlayer = {
         let result = AVPlayer()
         result.setObserver(self) { [weak self] time in
             if let _self = self {
@@ -28,14 +34,8 @@ class AVURLPlayer: NSObject {
         }
         return result
     }()
-
-    private(set) lazy var previewLayer: AVPlayerLayer = {
-        let result = AVPlayerLayer(player: player)
-        result.videoGravity = .resizeAspect
-        return result
-    }()
     
-    private lazy var seeker = AVPlayerSeeker(player: player)
+    private lazy var seeker = AVPlayerSeeker(player: core)
     
     private(set) var currentURL: URL?
     
@@ -99,8 +99,8 @@ class AVURLPlayer: NSObject {
     
     deinit {
         delegate = nil
-        player.pause()
-        player.removeObserver()
+        core.pause()
+        core.removeObserver()
         NotificationCenter.default.removeObserver(self)
     }
     
@@ -132,7 +132,7 @@ class AVURLPlayer: NSObject {
         if repeatCount < 0 || repeatCount > currentRepeatCount {//循环播放
             currentRepeatCount += 1
             seek(toTime: .zero)
-            player.play()
+            core.play()
         }
     }
 }
@@ -149,7 +149,7 @@ extension AVURLPlayer {
         }
         currentItem = AVPlayerItem(asset: currentAsset!)
         currentItem!.setObserver(self)
-        player.replaceCurrentItem(with: currentItem!)
+        core.replaceCurrentItem(with: currentItem!)
         currentItemStatus = .none
         currentRepeatCount = 0
     }
@@ -158,22 +158,25 @@ extension AVURLPlayer {
         guard currentItem != nil else {
             return
         }
-        player.play()
-        if currentURL?.isFileURL ?? false {
-            currentItemStatus = .bufferFull
-        } else {
-            currentItemStatus = .buffering
-        }
+        core.play()
+//        if currentURL?.isFileURL ?? false {
+//            currentItemStatus = .bufferFull
+//        } else {
+//            currentItemStatus = .buffering
+//        }
     }
     
     func pause() {
-        player.pause()
+        core.pause()
     }
     
     func seek(toTime: CMTime) {
-        player.pause()
+        if status == .playing {
+            core.pause()
+        }
+        status = .seeking
         seeker.seek(to: toTime, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
-            self?.player.play()
+            self?.core.play()
         }
     }
     
@@ -204,8 +207,8 @@ extension AVURLPlayer {
             } else if keyPath == kAVPlayerItemTimeRanges {//缓冲进度更新
                 delegate?.player(self, didUpdate: playerItem.loadedTimeRanges)
             }
-        } else if let player = object as? AVPlayer, self.player == player {
-            if keyPath == kAVPlayerRate {//播放器速率改变，0可简单理解为暂停，1可简单理解为播放，0.5就是0.5倍数
+        } else if let player = object as? AVPlayer, core == player {
+            if keyPath == kAVPlayerRate {//播放器速率改变，0可简单理解为暂停，1可简单理解为播放，0.5就是0.5倍速
 
             } else if keyPath == kAVPlayerTimeControl {
                 status = Status(player.timeControlStatus)
@@ -222,6 +225,7 @@ extension AVURLPlayer {
         case paused
         case waitingToPlayAtSpecifiedRate
         case playing
+        case seeking
         case failed(Error?)
         
         init(_ status: AVPlayer.TimeControlStatus) {
@@ -246,6 +250,8 @@ extension AVURLPlayer {
             case (.waitingToPlayAtSpecifiedRate, .waitingToPlayAtSpecifiedRate):
                 return true
             case (.playing, .playing):
+                return true
+            case (.seeking, .seeking):
                 return true
             case (.failed(_), .failed(_)):
                 return true
