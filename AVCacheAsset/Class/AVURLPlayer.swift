@@ -19,13 +19,13 @@ public protocol AVURLPlayerDelegate: NSObjectProtocol {
 }
 
 open class AVURLPlayer: NSObject {
-    private(set) lazy var layer: AVPlayerLayer = {
+    public private(set) lazy var layer: AVPlayerLayer = {
         let result = AVPlayerLayer(player: core)
         result.videoGravity = .resizeAspect
         return result
     }()
     
-    private(set) lazy var core: AVPlayer = {
+    public private(set) lazy var core: AVPlayer = {
         let result = AVPlayer()
         result.setObserver(self) { [weak self] time in
             if let _self = self {
@@ -63,10 +63,12 @@ open class AVURLPlayer: NSObject {
     }
     
     private(set) var needResume = false
-    ///播放次数，-1为无限循环
-    public var repeatCount = 0
+    
     ///当前循环次数
     private(set) var currentRepeatCount = 0
+    
+    ///播放次数，-1为无限循环
+    public var repeatCount = 0
     
     public weak var delegate: AVURLPlayerDelegate?
     
@@ -139,19 +141,12 @@ open class AVURLPlayer: NSObject {
 
 public extension AVURLPlayer {
     func prepare(url: URL) {
-        pause()
-        currentItem?.removeObserver()
+        stop()
         currentURL = url
-        if url.isFileURL {//本地视频
-            currentAsset = AVAsset(url: url)
-        } else {//在线视频
-            currentAsset = AVCacheAsset(url: url)
-        }
+        currentAsset = url.isFileURL ? AVAsset(url: url) : AVCacheAsset(url: url)
         currentItem = AVPlayerItem(asset: currentAsset!)
         currentItem!.setObserver(self)
         core.replaceCurrentItem(with: currentItem!)
-        currentItemStatus = .none
-        currentRepeatCount = 0
     }
     
     func play() {
@@ -163,6 +158,17 @@ public extension AVURLPlayer {
     
     func pause() {
         core.pause()
+    }
+    
+    func stop() {
+        pause()
+        core.replaceCurrentItem(with: nil)
+        currentItemStatus = .none
+        currentRepeatCount = 0
+        currentItem?.removeObserver()
+        currentItem = nil
+        currentAsset = nil
+        currentURL = nil
     }
     
     func seek(toTime: CMTime) {

@@ -10,7 +10,9 @@ import AVKit
 
 class ViewController: UIViewController {
     lazy var url = URL(string: "https://stream7.iqilu.com/10339/article/202002/18/2fca1c77730e54c7b500573c2437003f.mp4")!
-
+    
+    lazy var url2 = URL(string: "http://upload1.koucaimiao.com/filesystem/60b483f68fdf293199bb21a5")!
+    
     lazy var preloader = AVPreloader.shared
 
     lazy var player: AVURLPlayer = {
@@ -55,6 +57,9 @@ class ViewController: UIViewController {
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 
         play()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
+            self.stop()
+        }
     }
 
     @objc func play() {
@@ -63,6 +68,11 @@ class ViewController: UIViewController {
         } else {
             player.play()
         }
+    }
+    
+    @objc func stop() {
+        player.prepare(url: url2)
+        player.play()
     }
     
     @objc func progress(_ sender: UISlider) {
