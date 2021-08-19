@@ -57,7 +57,7 @@ class ViewController: UIViewController {
 //        preloader.preload(url: url, length: 1000 * 1000 * 5)
 
         play()
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(50)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
             self.remove()
         }
     }

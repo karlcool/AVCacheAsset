@@ -98,6 +98,7 @@ class AVURLPlayer: NSObject {
     }
     
     deinit {
+        delegate = nil
         player.pause()
         player.removeObserver()
         NotificationCenter.default.removeObserver(self)
