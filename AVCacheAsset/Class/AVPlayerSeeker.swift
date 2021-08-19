@@ -18,11 +18,7 @@ class AVPlayerSeeker {
     init(player: AVPlayer) {
         self.player = player
     }
-    
-    deinit {
-        DLog("!!")
-    }
-    
+
     func seek(to time: CMTime, toleranceBefore: CMTime, toleranceAfter: CMTime, completionHandler: @escaping (Bool) -> Void) {
         targetTime = time
         guard !isSeeking else {

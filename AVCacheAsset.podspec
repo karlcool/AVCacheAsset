@@ -11,5 +11,5 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/karlcool/AVCacheAsset.git", :tag => "#{s.version}" }
   s.source_files        = 'AVCacheAsset/Class/*.swift'
   s.ios.deployment_target = '11.0'
-  s.pod_target_xcconfig = { 'SWIFT_VERSION' => '5.0' }
+  s.swift_version = '5.0'
 end
