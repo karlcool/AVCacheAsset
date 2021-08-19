@@ -13,7 +13,7 @@ typealias ContentInfo = (type: String, length: Int64)
 class AVDataTask: NSObject {
 
     private(set) lazy var config: URLSessionConfiguration = {
-        let result = URLSessionConfiguration.default
+        let result = URLSessionConfiguration.ephemeral//.default会导致内存泄漏而ephemeral不会，很奇怪
         result.networkServiceType = .video
         return result
     }()

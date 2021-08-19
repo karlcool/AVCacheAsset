@@ -20,9 +20,14 @@ class AVDataTasker: NSObject {
         cache = AVCacheProvider.shared.cache(url: url)
         super.init()
     }
+    
     deinit {
         AVCacheProvider.shared.release(url: cache.url)
+        locker.lock()
+        taskQueue.removeAll()
+        locker.unlock()
     }
+    
     private func add(task: AVDataTask, loadingRequest: AVAssetResourceLoadingRequest? = nil) {
         locker.lock()
         taskQueue[task.id] = (task, loadingRequest)
@@ -81,7 +86,7 @@ extension AVDataTasker {
         }
         cache?.cache(info: _info)
 
-        let type = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, _info.type as CFString, nil)?.takeUnretainedValue() as String?
+        let type = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, _info.type as CFString, nil)?.takeRetainedValue() as String?
         request.contentInformationRequest?.contentType = type
         request.contentInformationRequest?.contentLength = _info.length
         request.contentInformationRequest?.isByteRangeAccessSupported = true
