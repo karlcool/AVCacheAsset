@@ -20,7 +20,9 @@ class AVDataTasker: NSObject {
         cache = AVCacheProvider.shared.cache(url: url)
         super.init()
     }
-    
+    deinit {
+        AVCacheProvider.shared.release(url: cache.url)
+    }
     private func add(task: AVDataTask, loadingRequest: AVAssetResourceLoadingRequest? = nil) {
         locker.lock()
         taskQueue[task.id] = (task, loadingRequest)

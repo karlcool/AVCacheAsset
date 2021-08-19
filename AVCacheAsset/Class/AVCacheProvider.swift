@@ -38,12 +38,16 @@ class AVCacheProvider: NSObject {
         return cacheDic[url]!
     }
     
-    func release() {
+    func release(url: URL? = nil) {
         locker.lock()
         defer {
             locker.unlock()
         }
-        cacheDic.removeAll()
+        if let _url = url {
+            cacheDic.removeValue(forKey: _url)
+        } else {
+            cacheDic.removeAll()
+        }
     }
 }
 

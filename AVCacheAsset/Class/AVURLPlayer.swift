@@ -29,23 +29,13 @@ class AVURLPlayer: NSObject {
         return result
     }()
 
-    lazy var previewLayer: AVPlayerLayer = {
+    private(set) lazy var previewLayer: AVPlayerLayer = {
         let result = AVPlayerLayer(player: player)
         result.videoGravity = .resizeAspect
         return result
     }()
     
-    ///item当前播放时间，秒级
-    var currentTime: Double {
-        let sec = currentItem?.currentTime().seconds ?? 0.0
-        return sec.isNaN ? 0 : sec
-    }
-    
-    ///item总时长，只有在currentItemStatus在readyToPlay之后才有效
-    var duration: Double {
-        let sec = currentItem?.duration.seconds ?? 0.0
-        return sec.isNaN ? 0 : sec
-    }
+    private lazy var seeker = AVPlayerSeeker(player: player)
     
     private(set) var currentURL: URL?
     
@@ -73,12 +63,28 @@ class AVURLPlayer: NSObject {
     }
     
     private(set) var needResume = false
+    ///播放次数，-1为无限循环
+    var repeatCount = 0
+    ///当前循环次数
+    private(set) var currentRepeatCount = 0
     
     weak var delegate: AVURLPlayerDelegate?
     
     var isPlaying: Bool { status == .playing }
     
     var isPaused: Bool { status == .paused || status == .waitingToPlayAtSpecifiedRate }
+    
+    ///item当前播放时间，秒级
+    var currentTime: Double {
+        let sec = currentItem?.currentTime().seconds ?? 0.0
+        return sec.isNaN ? 0 : sec
+    }
+    
+    ///item总时长，只有在currentItemStatus在readyToPlay之后才有效
+    var duration: Double {
+        let sec = currentItem?.duration.seconds ?? 0.0
+        return sec.isNaN ? 0 : sec
+    }
     
     override init() {
         super.init()
@@ -100,6 +106,7 @@ class AVURLPlayer: NSObject {
     private func setupNotification() {
         NotificationCenter.default.addObserver(self, selector: #selector(willResignActive), name: UIApplication.willResignActiveNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(didBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(didPlayToEndTime(_:)), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
     }
     
     @objc private func willResignActive() {
@@ -112,6 +119,20 @@ class AVURLPlayer: NSObject {
             return
         }
         play()
+    }
+    
+    @objc private func didPlayToEndTime(_ notification: Notification) {
+        guard let item = notification.object as? AVPlayerItem, let _currentItem = currentItem else {
+            return
+        }
+        guard item == _currentItem else {
+            return
+        }
+        if repeatCount < 0 || repeatCount > currentRepeatCount {//循环播放
+            currentRepeatCount += 1
+            seek(toTime: .zero)
+            player.play()
+        }
     }
 }
 
@@ -129,6 +150,7 @@ extension AVURLPlayer {
         currentItem!.setObserver(self)
         player.replaceCurrentItem(with: currentItem!)
         currentItemStatus = .none
+        currentRepeatCount = 0
     }
     
     func play() {
@@ -146,10 +168,21 @@ extension AVURLPlayer {
     func pause() {
         player.pause()
     }
+    
+    func seek(toTime: CMTime) {
+        player.pause()
+        seeker.seek(to: toTime, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] _ in
+            self?.player.play()
+        }
+    }
+    
+    func seek(toSeconds: Double) {
+        seek(toTime: .init(seconds: toSeconds, preferredTimescale: 600))
+    }
 }
 
 extension AVURLPlayer {
-    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if let playerItem = object as? AVPlayerItem, currentItem == playerItem {
             if keyPath == kAVPlayerItemStatus {
                 currentItemStatus = ItemStatus(playerItem.status)
