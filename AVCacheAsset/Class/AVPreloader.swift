@@ -8,7 +8,7 @@
 import Foundation
 
 ///预加载器
-class AVPreloader: NSObject {
+open class AVPreloader: NSObject {
     static let shared = AVPreloader()
     
     private let locker = NSLock()
@@ -32,7 +32,7 @@ class AVPreloader: NSObject {
     }
 }
 
-extension AVPreloader {
+public extension AVPreloader {
     func preload(urls: [(URL, Int64)]) {
         for node in urls {
             preload(url: node.0, length: node.1)
@@ -57,7 +57,7 @@ extension AVPreloader {
     }
 }
 
-extension AVPreloader {
+private extension AVPreloader {
     class Task: NSObject {
         private(set) var task: AVDataTask?
         

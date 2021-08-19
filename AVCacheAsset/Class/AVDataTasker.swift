@@ -9,7 +9,7 @@ import UIKit
 import AVKit
 import MobileCoreServices
 
-class AVDataTasker: NSObject {
+open class AVDataTasker: NSObject {
     private let locker = NSLock()
     
     private var taskQueue = [String: (AVDataTask, AVAssetResourceLoadingRequest?)]()
@@ -44,7 +44,7 @@ class AVDataTasker: NSObject {
     }
 }
 
-extension AVDataTasker {
+public extension AVDataTasker {
     func startTask(request: AVAssetResourceLoadingRequest) {
         var offset = request.dataRequest?.requestedOffset ?? 0
         let length = request.currentLength
@@ -79,7 +79,7 @@ extension AVDataTasker {
     }
 }
 
-extension AVDataTasker {
+public extension AVDataTasker {
     func setup(info: ContentInfo?, request: AVAssetResourceLoadingRequest, cache: AVCache? = nil) {
         guard let _info = info else {
             return

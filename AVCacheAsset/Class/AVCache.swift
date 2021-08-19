@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AVCache {
+open class AVCache {
     private lazy var fileLength: Int64 = {
         guard let readHandle = FileHandle(forReadingAtPath: cachePath) else {
             return 0

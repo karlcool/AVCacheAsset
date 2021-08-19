@@ -8,9 +8,9 @@
 import UIKit
 import AVKit
 
-typealias ContentInfo = (type: String, length: Int64)
+public typealias ContentInfo = (type: String, length: Int64)
 
-class AVDataTask: NSObject {
+open class AVDataTask: NSObject {
 
     private(set) lazy var config: URLSessionConfiguration = {
         let result = URLSessionConfiguration.ephemeral//.default会导致内存泄漏而ephemeral不会，很奇怪
@@ -56,7 +56,7 @@ class AVDataTask: NSObject {
     }
 }
 
-extension AVDataTask {
+public extension AVDataTask {
     func start(didLoadInfo: @escaping (ContentInfo) -> Void, didLoadData: @escaping (Data) -> Void, finished: @escaping (Error?) -> Void) {
         infoCallback = didLoadInfo
         dataCallback = didLoadData
@@ -71,21 +71,21 @@ extension AVDataTask {
 }
 
 extension AVDataTask: URLSessionDelegate, URLSessionDataDelegate, URLSessionTaskDelegate { 
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
         if let _info = response.info() {
             infoCallback?(_info)
         }
         completionHandler(.allow)
     }
     
-    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         guard data.count > 0 else {
             return
         }
         dataCallback?(data)
     }
     
-    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if (error as NSError?)?.code == NSURLErrorCancelled {
             finishedCallback?(nil)
         } else {

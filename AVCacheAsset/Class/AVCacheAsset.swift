@@ -8,7 +8,7 @@
 import Foundation
 import AVKit
 
-class AVCacheAsset: AVURLAsset {
+open class AVCacheAsset: AVURLAsset {
     private(set) lazy var tasker = AVDataTasker(url: originUrl)
 
     let originUrl: URL
@@ -21,12 +21,12 @@ class AVCacheAsset: AVURLAsset {
 }
 
 extension AVCacheAsset: AVAssetResourceLoaderDelegate {
-    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
+    public func resourceLoader(_ resourceLoader: AVAssetResourceLoader, shouldWaitForLoadingOfRequestedResource loadingRequest: AVAssetResourceLoadingRequest) -> Bool {
         tasker.startTask(request: loadingRequest)
         return true
     }
 
-    func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
+    public func resourceLoader(_ resourceLoader: AVAssetResourceLoader, didCancel loadingRequest: AVAssetResourceLoadingRequest) {
         tasker.cancel(request: loadingRequest)
     }
 }

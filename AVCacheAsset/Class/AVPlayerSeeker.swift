@@ -7,7 +7,7 @@
 
 import AVKit
 
-class AVPlayerSeeker {
+public class AVPlayerSeeker {
     
     private var isSeeking = false
     

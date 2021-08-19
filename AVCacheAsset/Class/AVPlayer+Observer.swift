@@ -22,7 +22,7 @@ private var kAVPlayerItemObserverKey = 23523456
 private var kAVPlayerObserverKey = 42341234
 private var kAVPlayerTimeObserverKey = 443456
 
-extension AVPlayerItem {
+public extension AVPlayerItem {
     private(set) var observer: NSObject? {
         set {
             objc_setAssociatedObject(self, &kAVPlayerItemObserverKey, newValue, .OBJC_ASSOCIATION_ASSIGN)
@@ -56,7 +56,7 @@ extension AVPlayerItem {
     }
 }
 
-extension AVPlayer {
+public extension AVPlayer {
     private(set) var observer: NSObject? {
         set {
             objc_setAssociatedObject(self, &kAVPlayerObserverKey, newValue, .OBJC_ASSOCIATION_ASSIGN)

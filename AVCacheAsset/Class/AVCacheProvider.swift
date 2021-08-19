@@ -8,7 +8,7 @@
 import UIKit
 import CommonCrypto
 
-class AVCacheProvider: NSObject {
+public class AVCacheProvider: NSObject {
     static let shared = AVCacheProvider()
     
     private lazy var cacheFolder: String = {
@@ -51,7 +51,7 @@ class AVCacheProvider: NSObject {
     }
 }
 
-extension AVCacheProvider {
+public extension AVCacheProvider {
     func cleanCache(_ url: URL? = nil, completion: @escaping (Bool) -> Void) {
         DispatchQueue.global().async {
             var result = true

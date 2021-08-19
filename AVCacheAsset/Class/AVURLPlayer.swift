@@ -8,7 +8,7 @@
 import UIKit
 import AVKit
 
-protocol AVURLPlayerDelegate: NSObjectProtocol {
+public protocol AVURLPlayerDelegate: NSObjectProtocol {
     func player(_ player: AVURLPlayer, didUpdate itemStatus: AVURLPlayer.ItemStatus)
     
     func player(_ player: AVURLPlayer, didUpdate playerStatus: AVURLPlayer.Status)
@@ -18,7 +18,7 @@ protocol AVURLPlayerDelegate: NSObjectProtocol {
     func player(_ player: AVURLPlayer, didUpdate bufferRanges: [NSValue])
 }
 
-class AVURLPlayer: NSObject {
+open class AVURLPlayer: NSObject {
     private(set) lazy var layer: AVPlayerLayer = {
         let result = AVPlayerLayer(player: core)
         result.videoGravity = .resizeAspect
@@ -137,7 +137,7 @@ class AVURLPlayer: NSObject {
     }
 }
 
-extension AVURLPlayer {
+public extension AVURLPlayer {
     func prepare(url: URL) {
         pause()
         currentItem?.removeObserver()
@@ -159,11 +159,6 @@ extension AVURLPlayer {
             return
         }
         core.play()
-//        if currentURL?.isFileURL ?? false {
-//            currentItemStatus = .bufferFull
-//        } else {
-//            currentItemStatus = .buffering
-//        }
     }
     
     func pause() {
@@ -186,7 +181,7 @@ extension AVURLPlayer {
 }
 
 extension AVURLPlayer {
-     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+    override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if let playerItem = object as? AVPlayerItem, currentItem == playerItem {
             if keyPath == kAVPlayerItemStatus {
                 currentItemStatus = ItemStatus(playerItem.status)
@@ -219,7 +214,7 @@ extension AVURLPlayer {
     }
 }
 
-extension AVURLPlayer {
+public extension AVURLPlayer {
     enum Status: Equatable {
         case none
         case paused
@@ -241,7 +236,7 @@ extension AVURLPlayer {
             }
         }
         
-        static func == (lhs: Self, rhs: Self) -> Bool {
+        public static func == (lhs: Self, rhs: Self) -> Bool {
             switch (lhs, rhs) {
             case (.none, .none):
                 return true

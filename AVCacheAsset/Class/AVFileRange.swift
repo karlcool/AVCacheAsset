@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AVFileRange {
+open class AVFileRange {
 
     private lazy var cache = AVProperty(key: "AVProperty.\(id).cache", default: [String]())
     
@@ -85,7 +85,7 @@ class AVFileRange {
     }
 }
 
-class FileRange: NSObject, Codable {
+open class FileRange: NSObject, Codable {
     private(set) var start: Int64
     
     private(set) var end: Int64
