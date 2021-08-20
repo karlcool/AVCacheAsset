@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     lazy var preloader = AVPreloader.shared
 
     lazy var player: AVURLPlayer = {
-        let result = AVURLPlayer(url: url)
+        let result = AVURLPlayer()
         result.delegate = self
         result.repeatCount = -1
         return result
@@ -48,14 +48,13 @@ class ViewController: UIViewController {
         temp.isUserInteractionEnabled = false
         return temp
     }()
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .black
         configSubviews()
         DLog("缓存路径:\(AVCacheProvider.shared.cachePath(url))")
-//        preloader.preload(url: url, length: 1000 * 1000 * 5)
-
+        player.prepare(url: url)
         play()
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) {
             self.stop()
@@ -66,6 +65,8 @@ class ViewController: UIViewController {
         if player.status == .playing {
             player.pause()
         } else {
+            DLog("开始播放")
+            
             player.play()
         }
     }

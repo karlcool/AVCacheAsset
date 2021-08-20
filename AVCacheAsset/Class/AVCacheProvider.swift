@@ -11,17 +11,11 @@ import CommonCrypto
 public class AVCacheProvider: NSObject {
     public static let shared = AVCacheProvider()
     
-    private lazy var cacheFolder: String = {
-        let path = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! + "/AVCache"
-        if !FileManager.default.fileExists(atPath: path) {
-            try? FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false, attributes: nil)
-        }
-        return path
-    }()
+    private lazy var cacheFolder = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true).first! + "/AVCache"
     
     private lazy var locker = NSLock()
     
-    private lazy var cacheDic = [URL: AVCache]()
+    private lazy var cacheDic = NSMapTable<NSURL, AVCache>(keyOptions: .strongMemory, valueOptions: .weakMemory)
     
     private override init() {
         super.init()
@@ -32,21 +26,13 @@ public class AVCacheProvider: NSObject {
         defer {
             locker.unlock()
         }
-        if cacheDic[url] == nil {
-            cacheDic[url] = AVCache(url: url, cachePath: cachePath(url))
-        }
-        return cacheDic[url]!
-    }
-    
-    public func release(url: URL? = nil) {
-        locker.lock()
-        defer {
-            locker.unlock()
-        }
-        if let _url = url {
-            cacheDic.removeValue(forKey: _url)
+        if let result = cacheDic.object(forKey: url as NSURL) {
+            cachePath(url)//检查并创建文件
+            return result
         } else {
-            cacheDic.removeAll()
+            let result = AVCache(url: url, cachePath: cachePath(url))
+            cacheDic.setObject(result, forKey: url as NSURL)
+            return result
         }
     }
 }
@@ -54,6 +40,7 @@ public class AVCacheProvider: NSObject {
 public extension AVCacheProvider {
     func cleanCache(_ url: URL? = nil, completion: @escaping (Bool) -> Void) {
         DispatchQueue.global().async {
+            AVPreloader.shared.cancel(url: url)
             var result = true
             let path: String
             let name: String?
@@ -91,13 +78,16 @@ public extension AVCacheProvider {
         }
     }
     
-    func cachePath(_ url: URL) -> String {
+    @discardableResult func cachePath(_ url: URL) -> String {
         return cachePath(cacheName(url))
     }
     
     func cachePath(_ cacheName: String) -> String {
         var path = cacheFolder
         path += "/\(cacheName)"
+        if !FileManager.default.fileExists(atPath: cacheFolder) {
+            try? FileManager.default.createDirectory(atPath: cacheFolder, withIntermediateDirectories: false, attributes: nil)
+        }
         if !FileManager.default.fileExists(atPath: path) {
             FileManager.default.createFile(atPath: path, contents: nil, attributes: nil)
         }

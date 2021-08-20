@@ -22,7 +22,6 @@ open class AVDataTasker: NSObject {
     }
     
     deinit {
-        AVCacheProvider.shared.release(url: cache.url)
         locker.lock()
         taskQueue.removeAll()
         locker.unlock()

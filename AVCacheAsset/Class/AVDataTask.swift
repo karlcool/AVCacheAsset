@@ -65,6 +65,9 @@ public extension AVDataTask {
     }
     
     func cancel() {
+        infoCallback = nil
+        dataCallback = nil
+        finishedCallback = nil
         task.cancel()
         session.invalidateAndCancel()
     }

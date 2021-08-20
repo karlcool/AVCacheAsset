@@ -24,6 +24,11 @@ open class AVFileRange {
         encode()
     }
     
+    public func clean() {
+        ranges = []
+        cache.value = []
+    }
+    
     @objc private func encode() {
         guard ranges.count > 0 else {
             cache.value = []

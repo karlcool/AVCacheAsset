@@ -13,21 +13,21 @@ open class AVPreloader: NSObject {
     
     private let locker = NSLock()
     
-    private lazy var tasks = Set<Task>()
+    private lazy var taskDic = [URL: Task]()
     
     private override init() {
         super.init()
     }
     
-    private func add(task: Task) {
+    private func add(task: Task, url: URL) {
         locker.lock()
-        tasks.insert(task)
+        taskDic[url] = task
         locker.unlock()
     }
     
-    private func remove(task: Task) {
+    private func remove(task url: URL) {
         locker.lock()
-        tasks.remove(task)
+        taskDic.removeValue(forKey: url)
         locker.unlock()
     }
 }
@@ -47,31 +47,44 @@ public extension AVPreloader {
     
     func preload(url: URL, length: Int64, completion: ((Error?) -> Void)? = nil) {
         let task = Task(url: url)
-        add(task: task)
-        task.preload(length: length) { [weak self, weak task] error in
-            if let _task = task {
-                self?.remove(task: _task)
-            }
+        add(task: task, url: url)
+        task.preload(length: length) { [weak self] error in
+            self?.remove(task: url)
             completion?(error)
         }
+    }
+    
+    func cancel(url: URL? = nil) {
+        locker.lock()
+        if let _url = url {
+            taskDic[_url]?.cancel()
+            taskDic.removeValue(forKey: _url)
+        } else {
+            for t in taskDic {
+                t.value.cancel()
+            }
+            taskDic.removeAll()
+        }
+        locker.unlock()
     }
 }
 
 private extension AVPreloader {
-    class Task: NSObject {
+    class Task {
         private(set) var task: AVDataTask?
         
+        private lazy var cache: AVCache? = AVCacheProvider.shared.cache(url: url)
+        
         private var currentOffset: Int64 = 0
-        
-        let cache: AVCache
 
-        init(url: URL) {
-            cache = AVCacheProvider.shared.cache(url: url)
-            super.init()
-        }
+        let url: URL
         
+        init(url: URL) {
+            self.url = url
+        }
+
         func preload(length: Int64, completion: ((Error?) -> Void)? = nil) {
-            let temp = cache.data(offset: 0, length: length)
+            let temp = cache?.data(offset: 0, length: length) ?? Data()
             guard temp.count < length else {//已经有缓存数据了
                 DispatchQueue.main.async {
                     completion?(nil)
@@ -79,15 +92,15 @@ private extension AVPreloader {
                 return
             }
             let offset = Int64(temp.count)
-            task = AVDataTask(url: cache.url, offset: offset, end: length)
+            task = AVDataTask(url: url, offset: offset, end: length)
             currentOffset = offset
-            task!.start { [weak self] info in
+            task?.start { [weak self] info in
                 if let _self = self {
-                    _self.cache.cache(info: info)
+                    _self.cache?.cache(info: info)
                 }
             } didLoadData: { [weak self] data in
                 if let _self = self {
-                    _self.cache.cache(data: data, offset: _self.currentOffset)
+                    _self.cache?.cache(data: data, offset: _self.currentOffset)
                     _self.currentOffset += Int64(data.count)
                 }
             } finished: { [weak self] error in
@@ -98,6 +111,11 @@ private extension AVPreloader {
                     completion?(error)
                 }
             }
+        }
+        
+        func cancel() {
+            cache = nil
+            task?.cancel()
         }
     }
 }

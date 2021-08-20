@@ -25,7 +25,7 @@ open class AVCache {
     
     private lazy var readHandle = FileHandle(forReadingAtPath: cachePath)
   
-    private lazy var writeQueue = DispatchQueue(label: "AVCache.writeQueue.\(cacheName)")
+    private lazy var writeQueue = DispatchQueue(label: "AVCache.\(cacheName).writeQueue")
     
     private lazy var locker = NSLock()
     
@@ -39,6 +39,9 @@ open class AVCache {
         self.url = url
         self.cachePath = cachePath
         cacheName = (cachePath as NSString).lastPathComponent
+        if fileLength == 0 {//文件被外部删除,此时需要清除range数据
+            uncacheRange.clean()
+        }
     }
     
     deinit {
@@ -46,7 +49,33 @@ open class AVCache {
         writeHandle?.closeFile()
     }
     
-    public func contentInfo() -> ContentInfo? {
+    private func _cache(data: Data, offset: Int64) {
+        locker.lock()
+        defer {
+            locker.unlock()
+        }
+        let length = Int64(data.count)
+        guard offset >= 0, length > 0 else {
+            return
+        }
+        guard let _writeHandle = writeHandle else {
+            return
+        }
+        _writeHandle.seek(toFileOffset: UInt64(offset))
+        _writeHandle.write(data)
+
+        if let uncache = FileRange(start: fileLength, end: offset) {
+            uncacheRange.add(uncache)
+        }
+        if let newRange = FileRange(start: offset, end: offset + length) {
+            uncacheRange.deduct(newRange)
+        }
+        fileLength = max(offset + length, fileLength)
+    }
+}
+
+public extension AVCache {
+    func contentInfo() -> ContentInfo? {
         let length = contentLength.value
         guard length != 0 else {
             return nil
@@ -54,15 +83,18 @@ open class AVCache {
         return (contentType.value, length)
     }
     
-    public func cache(info: ContentInfo) {
+    func cache(info: ContentInfo) {
         contentType.value = info.type
         contentLength.value = info.length
     }
     
-    public func data(offset: Int64, length: Int64) -> Data {
+    func data(offset: Int64, length: Int64) -> Data {
         locker.lock()
         defer {
             locker.unlock()
+        }
+        guard let _readHandle = readHandle else {
+            return Data()
         }
         guard offset < fileLength, let range = FileRange(start: offset, end: offset + length) else {
             return Data()
@@ -75,36 +107,14 @@ open class AVCache {
         let _offset = range.start
         let _length = range.end - range.start
         
-        readHandle?.seek(toFileOffset: UInt64(_offset))
-        let result = readHandle?.readData(ofLength: Int(_length)) ?? Data()
+        _readHandle.seek(toFileOffset: UInt64(_offset))
+        let result = _readHandle.readData(ofLength: Int(_length))
         return result
     }
 
-    public func cache(data: Data, offset: Int64) {
+    func cache(data: Data, offset: Int64) {
         writeQueue.async {
             self._cache(data: data, offset: offset)
         }
-    }
-
-    private func _cache(data: Data, offset: Int64) {
-        locker.lock()
-        defer {
-            locker.unlock()
-        }
-        let length = Int64(data.count)
-        guard offset >= 0, length > 0 else {
-            return
-        }
-
-        writeHandle?.seek(toFileOffset: UInt64(offset))
-        writeHandle?.write(data)
-
-        if let uncache = FileRange(start: fileLength, end: offset) {
-            uncacheRange.add(uncache)
-        }
-        if let newRange = FileRange(start: offset, end: offset + length) {
-            uncacheRange.deduct(newRange)
-        }
-        fileLength = max(offset + length, fileLength)
     }
 }
