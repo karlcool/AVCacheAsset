@@ -135,6 +135,8 @@ open class AVURLPlayer: NSObject {
             currentRepeatCount += 1
             seek(toTime: .zero)
             core.play()
+        } else {
+            currentItemStatus = .playToEndTime
         }
     }
 }
