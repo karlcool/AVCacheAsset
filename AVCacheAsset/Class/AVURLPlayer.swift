@@ -103,6 +103,7 @@ open class AVURLPlayer: NSObject {
         delegate = nil
         core.pause()
         core.removeObserver()
+        currentItem?.removeObserver()
         NotificationCenter.default.removeObserver(self)
     }
     
