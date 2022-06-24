@@ -19,11 +19,7 @@ public protocol AVURLPlayerDelegate: NSObjectProtocol {
 }
 
 open class AVURLPlayer: NSObject {
-    public private(set) lazy var layer: AVPlayerLayer = {
-        let result = AVPlayerLayer(player: core)
-        result.videoGravity = .resizeAspect
-        return result
-    }()
+    public private(set) lazy var view = AVPlayView(player: core)
     
     public private(set) lazy var core: AVPlayer = {
         let result = AVPlayer()

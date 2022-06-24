@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C05EBAA26CDF70400D8F929 /* AVPlayerSeeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C05EBA926CDF70400D8F929 /* AVPlayerSeeker.swift */; };
+		2C2DB0432865916900342F18 /* AVPlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2DB0422865916900342F18 /* AVPlayView.swift */; };
 		2C6561CC26CCE1CD0002BDFA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561CB26CCE1CD0002BDFA /* AppDelegate.swift */; };
 		2C6561D026CCE1CD0002BDFA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6561CF26CCE1CD0002BDFA /* ViewController.swift */; };
 		2C6561D526CCE1CE0002BDFA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C6561D426CCE1CE0002BDFA /* Assets.xcassets */; };
@@ -26,6 +27,7 @@
 
 /* Begin PBXFileReference section */
 		2C05EBA926CDF70400D8F929 /* AVPlayerSeeker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerSeeker.swift; sourceTree = "<group>"; };
+		2C2DB0422865916900342F18 /* AVPlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayView.swift; sourceTree = "<group>"; };
 		2C6561C826CCE1CD0002BDFA /* AVCacheAsset.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AVCacheAsset.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C6561CB26CCE1CD0002BDFA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2C6561CF26CCE1CD0002BDFA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -90,6 +92,7 @@
 				2C6561F026CCE4EB0002BDFA /* AVURLPlayer.swift */,
 				2C6561F226CCFC580002BDFA /* AVPlayer+Observer.swift */,
 				2C05EBA926CDF70400D8F929 /* AVPlayerSeeker.swift */,
+				2C2DB0422865916900342F18 /* AVPlayView.swift */,
 				2C6561E426CCE2700002BDFA /* AVCacheAsset.swift */,
 				2C6561E326CCE2700002BDFA /* AVDataTasker.swift */,
 				2C6561E126CCE2700002BDFA /* AVDataTask.swift */,
@@ -184,6 +187,7 @@
 				2C05EBAA26CDF70400D8F929 /* AVPlayerSeeker.swift in Sources */,
 				2C6561F126CCE4EB0002BDFA /* AVURLPlayer.swift in Sources */,
 				2C6561EA26CCE2700002BDFA /* AVCacheProvider.swift in Sources */,
+				2C2DB0432865916900342F18 /* AVPlayView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

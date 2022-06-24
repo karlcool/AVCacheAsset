@@ -90,7 +90,7 @@ extension ViewController {
     }
     
     func setupSubviews() {
-        view.layer.addSublayer(player.layer)
+        view.addSubview(player.view)
         view.addSubview(controlView)
         view.addSubview(indicator)
         controlView.addSubview(playBtn)
@@ -103,7 +103,7 @@ extension ViewController {
         playBtn.frame = .init(x: 0, y: 0, width: h, height: h)
         slider.frame = .init(x: playBtn.bounds.width, y: 0, width: controlView.bounds.width - playBtn.bounds.width, height: h)
         indicator.frame = view.bounds
-        player.layer.frame = view.bounds
+        player.view.frame = view.bounds
     }
 }
 

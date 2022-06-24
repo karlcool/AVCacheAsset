@@ -63,21 +63,16 @@ public extension AVCacheProvider {
         }
     }
     
-    func cacheSize(completion: @escaping (UInt64) -> Void) {
-        DispatchQueue.global().async {
-            var result: UInt64 = 0
-            let files = (try? FileManager.default.contentsOfDirectory(atPath: self.cacheFolder)) ?? []
-            for f in files {
-                if let size = (try? FileManager.default.attributesOfItem(atPath: self.cacheFolder + "/" + f))?[.size] as? UInt64 {
-                    result += size
-                }
-            }
-            DispatchQueue.main.async {
-                completion(result)
-            }
+    func cacheSize() -> UInt {
+        let keys: Set<URLResourceKey> = [.fileSizeKey]
+        let urls = (try? FileManager.default.contentsOfDirectory(atPath: cacheFolder).map({ URL(fileURLWithPath: $0) })) ?? []
+        let totalSize = urls.reduce(0) { size, fileURL in
+            let fileSize = (try? fileURL.resourceValues(forKeys: keys))?.fileSize ?? 0
+            return size + fileSize
         }
+        return UInt(totalSize)
     }
-    
+
     @discardableResult func cachePath(_ url: URL) -> String {
         return cachePath(cacheName(url))
     }
