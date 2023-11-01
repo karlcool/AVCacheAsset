@@ -102,10 +102,10 @@ private extension URLResponse {
         guard let header = (self as? HTTPURLResponse)?.allHeaderFields else {
             return nil
         }
-        guard let type = header["Content-Type"] as? String else {
+        guard let type = header.contentType else {
             return nil
         }
-        guard let range = header["Content-Range"] as? String, let _length = range.split(separator: "/").last else {
+        guard let range = header.contentRange, let _length = range.split(separator: "/").last else {
             return nil
         }
         guard let length = Int64(_length) else {
@@ -113,4 +113,10 @@ private extension URLResponse {
         }
         return (type, length)
     }
+}
+
+extension [AnyHashable : Any] {
+    var contentType: String? { (self["Content-Type"] ?? self["content-type"]) as? String }
+    
+    var contentRange: String? { (self["Content-Range"] ?? self["content-range"]) as? String }
 }
